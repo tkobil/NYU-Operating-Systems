@@ -1,10 +1,9 @@
 #include "types.h"
 #include "stat.h"
-//#include <fcntl.h>
 #include "user.h"
 
 #define STD_OUT 1
-#define TEMP_FILE_NAME "temp_file.txt"
+#define TEMP_FILE_NAME "./temp_file"
 #define TRUE 1
 #define FALSE 0
 
@@ -17,24 +16,15 @@
 //hardcoded for now
 char infile_buf[6];
 char tempfile_buf[6];
-// int string_compare(char *str1, char *str2, int ignore_case)
-
-// int line_exists(int temp_file_descriptor, char *search_line)
-
-// void write_line(int temp_file_descriptor, char *write_line)
 
 void usage(int fd_out) {
     printf(fd_out, "usage: uniq input-file-name");
 }
 
 void uniq(int fd_in, int count, int duplicate, int ignore) {
-    int state = mknod(TEMP_FILE_NAME, 0777, 0); // not working properly
-    printf(STD_OUT, "%d", state);
-    if (state < 0) {
-        printf(STD_OUT, "mknod() error");
-        exit();
-    }
-    int temp_fd = open(TEMP_FILE_NAME, O_RDWR); // open temp file
+    // create temp file
+    unlink(TEMP_FILE_NAME);
+    int temp_fd = open(TEMP_FILE_NAME, O_CREATE | O_RDWR); // open temp file
     if (temp_fd == -1) {
         printf(STD_OUT, "error w temp file!");
         exit();
@@ -43,33 +33,42 @@ void uniq(int fd_in, int count, int duplicate, int ignore) {
     //while read in line exists
     int infile_num_bytes, tempfile_num_bytes;
     while ((infile_num_bytes = read(fd_in, infile_buf, sizeof(infile_buf))) > 0) { // consider read() wrapper for readline()
-        printf(STD_OUT, "line read!");
-        // get a line of file from bytes.
         // TODO - need to account for a line being longer than 512 bytes. 
 
 
-        // check if line in temp file using string_compare
+        // check if line in temp file using string compare
         // if line isn't in temp file, write line to temp file
         int dupe = FALSE;
         while ((tempfile_num_bytes = read(temp_fd, tempfile_buf, sizeof(tempfile_buf))) > 0) {
+            printf(STD_OUT, "infile buf: %s\n", infile_buf);
+            printf(STD_OUT, "tempfile buf: %s\n", tempfile_buf);
             if (strcmp(infile_buf, tempfile_buf) == 0) {
-                printf(STD_OUT, "dupe found!");
+                // printf(STD_OUT, "dupe found!");
                 dupe = TRUE;
+                printf(STD_OUT, "dupe True");
             }
         }
 
         if (!dupe) { // no dupes found
-            write(temp_fd, tempfile_buf, sizeof(tempfile_buf));
+            // write(temp_fd, infile_buf, sizeof(infile_buf));
+            int write_success = write(temp_fd, infile_buf, sizeof(infile_buf));
+            if (write_success < 0) {
+                printf(STD_OUT, "error writing to temp file");
+            }
+            
+            // This is a hack - we need to reset file offset
+            close(temp_fd);
+            temp_fd = open(TEMP_FILE_NAME, O_RDWR);
         }
     }
     char printf_buf[512];
     int n;
-    while ((n = read(temp_fd, printf_buf, sizeof(printf_buf))) > 0) { 
-        printf(STD_OUT, printf_buf);
-    }
-    // delete temp file
     //write to stdout
-    unlink(TEMP_FILE_NAME);
+    while ((n = read(temp_fd, printf_buf, sizeof(printf_buf))) > 0) { 
+        printf(STD_OUT, "%s", printf_buf);
+    }
+    close(temp_fd);
+    // unlink(TEMP_FILE_NAME);
 }
 
 int main(int argc, char *argv[]) {
