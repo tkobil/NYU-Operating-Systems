@@ -3,10 +3,10 @@
 #include "user.h"
 
 #define STD_OUT 1
+#define STD_IN 0
 #define TRUE 1
 #define FALSE 0
-// should be able to include fcntl.h, but getting errors - TODO
-#define O_RDONLY  0x000
+#define O_RDONLY  0x000 // should be able to include fcntl.h, but getting errors - TODO
 
 //hardcoded for now
 char last_line[6];
@@ -120,11 +120,6 @@ int main(int argc, char *argv[]) {
     char * infile;
     count = duplicate = ignore = 0;
 
-    if (argc <= 1) {
-        printf(STD_OUT, "there");
-        usage(STD_OUT);
-    } 
-
     int i;
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-d") == 0) {
@@ -138,14 +133,21 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    in_fd = open(infile, O_RDONLY);
+    // check if input is file or piped input
+    // from stdin
+    if (infile != 0) {
+        in_fd = open(infile, O_RDONLY);
+    }
+    else {
+        in_fd = STD_IN;
+    }
+
     if (in_fd < 0) {
-        printf(STD_OUT, "%d", in_fd);
-        printf(STD_OUT, "%s", infile);
         usage(STD_OUT);
     }
 
     uniq(in_fd, count, duplicate, ignore);
+    close(in_fd);
     exit();
     return 0;
 }
