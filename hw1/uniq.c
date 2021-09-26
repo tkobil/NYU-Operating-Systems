@@ -28,6 +28,19 @@ void to_upper(char *str, char *copy_str) {
     }
 }
 
+int string_compare(char * str1, char * str2, int ignore_case) {
+    char str_1_cmp[strlen(str1)];
+    char str_2_cmp[strlen(str2)];
+    if (ignore_case) {
+        to_upper(str1, str_1_cmp);
+        to_upper(str2, str_2_cmp);
+    } else {
+        strcpy(str_1_cmp, str1);
+        strcpy(str_2_cmp, str2);
+    }
+    return (strcmp(str_1_cmp, str_2_cmp) == 0);
+}
+
 void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
     // only print duplicates
     int infile_num_bytes;
@@ -35,22 +48,9 @@ void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
     while ((infile_num_bytes = read(fd_in, this_line, sizeof(this_line))) > 0) { 
         // TODO - need to account for a line being longer than 512 bytes - readline() wrapper for read()
 
-        // if dupe exists, just leave last_line as is
-        // and continue. Otherwise, print last line, 
-        // set last_line to this line, and continue.
-        char last_line_cmp[strlen(last_line)];
-        char this_line_cmp[strlen(this_line)];
-        if (ignore) {
-            to_upper(last_line, last_line_cmp);
-            to_upper(this_line, this_line_cmp);
-        } else {
-            strcpy(last_line_cmp, last_line);
-            strcpy(this_line_cmp, this_line);
-        }
-
         // if we find a dupe, and its the first occurence, print it and set
         // the dupe flag. Otherwise, set the dupe flag to false.
-        if (strcmp(last_line_cmp, this_line_cmp) == 0 && !dupe_found) {
+        if (string_compare(last_line, this_line, ignore) && !dupe_found) {
             printf(STD_OUT, "%s", last_line);
             dupe_found = TRUE;
         } else {
@@ -61,16 +61,7 @@ void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
     // if dupe exists, just leave last_line as is
     // and continue. Otherwise, print last line, 
     // set last_line to this line, and continue.
-    char last_line_cmp[strlen(last_line)];
-    char this_line_cmp[strlen(this_line)];
-    if (ignore) {
-        to_upper(last_line, last_line_cmp);
-        to_upper(this_line, this_line_cmp);
-    } else {
-        strcpy(last_line_cmp, last_line);
-        strcpy(this_line_cmp, this_line);
-    }
-    if (strcmp(last_line_cmp, this_line_cmp) == 0 && !dupe_found) {
+    if (!string_compare(last_line, this_line, ignore) && !dupe_found) {
         printf(STD_OUT, "%s", last_line);
     }
 }
@@ -81,20 +72,7 @@ void uniq_non_duplicate_mode(int fd_in, int ignore, int count, char * last_line)
     while ((infile_num_bytes = read(fd_in, this_line, sizeof(this_line))) > 0) { 
         // TODO - need to account for a line being longer than 512 bytes - readline() wrapper for read()
 
-        // if dupe exists, just leave last_line as is
-        // and continue. Otherwise, print last line, 
-        // set last_line to this line, and continue.
-        char last_line_cmp[strlen(last_line)];
-        char this_line_cmp[strlen(this_line)];
-        if (ignore) {
-            to_upper(last_line, last_line_cmp);
-            to_upper(this_line, this_line_cmp);
-        } else {
-            strcpy(last_line_cmp, last_line);
-            strcpy(this_line_cmp, this_line);
-        }
-
-        if (strcmp(last_line_cmp, this_line_cmp) != 0) {
+        if (!string_compare(last_line, this_line, ignore)) {
             // dupe not found
             if (count) {
                 printf(STD_OUT, "%d %s", dupe_count, last_line);
@@ -129,6 +107,7 @@ void uniq(int fd_in, int count, int duplicate, int ignore) {
     switch (duplicate) {
         case 0 :
             uniq_non_duplicate_mode(fd_in, ignore, count, last_line);
+            break;
         case 1 :
             uniq_duplicate_mode(fd_in, ignore, last_line);
     }
@@ -142,32 +121,27 @@ int main(int argc, char *argv[]) {
     count = duplicate = ignore = 0;
 
     if (argc <= 1) {
+        printf(STD_OUT, "there");
         usage(STD_OUT);
     } 
 
-    if (argc > 2) {
-        for (int i = 1; i < argc; i++) {
-            if (strlen(argv[i]) != 2) {
-                usage(STD_OUT);
-            }
-            switch (argv[i][1]) {
-                case 'd' :
-                    duplicate = 1;
-                    break;
-                case 'c' :
-                    count = 1;
-                    break;
-                case 'i' :
-                    ignore = 1;
-                    break;
-                default:
-                    // assume filename
-                    infile = argv[i];
-            }
+    int i;
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-d") == 0) {
+            duplicate = 1;
+        } else if (strcmp(argv[i], "-c") == 0) {
+            count = 1;
+        } else if (strcmp(argv[i], "-i") == 0) {
+            ignore = 1;
+        } else {
+            infile = argv[i];
         }
     }
 
-    if ((in_fd = open(infile, O_RDONLY)) < 0) {
+    in_fd = open(infile, O_RDONLY);
+    if (in_fd < 0) {
+        printf(STD_OUT, "%d", in_fd);
+        printf(STD_OUT, "%s", infile);
         usage(STD_OUT);
     }
 
