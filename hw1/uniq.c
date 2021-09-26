@@ -42,6 +42,10 @@ void uniq(int fd_in, int count, int duplicate, int ignore) {
             strcpy(last_line, this_line);
         }
     }
+    // Always print last line. If no dupe found on last 2 lines, 
+    // only the 2nd to last will have printed. Alternatively, if dupe was found,
+    // the duplicated line needs to be printed here.
+    printf(STD_OUT, "%s", last_line);
 }
 
 int main(int argc, char *argv[]) {
