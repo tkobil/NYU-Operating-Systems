@@ -8,12 +8,8 @@
 #define FALSE 0
 #define O_RDONLY  0x000 // should be able to include fcntl.h, but getting errors - TODO
 
-//hardcoded for now
-char last_line[6];
-char this_line[6];
-
 void usage(int fd_out) {
-    printf(fd_out, "usage: uniq input-file-name -w [OPTIONAL] -i [OPTIONAL] -c [OPTIONAL]");
+    printf(fd_out, "usage: uniq input-file-name -w [OPTIONAL] -i [OPTIONAL] -c [OPTIONAL]\n");
     exit();
 }
 
@@ -41,13 +37,73 @@ int string_compare(char * str1, char * str2, int ignore_case) {
     return (strcmp(str_1_cmp, str_2_cmp) == 0);
 }
 
-void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
+int read_line(int fd_in, char * buf, int buf_size) {
+    // read a 1024 byte line...
+    char overflow_buf[512];
+    int n;
+    if (buf_size >= 512) { //pipes only hold 512 bytes!
+        int total_n = 0;
+        int i;
+        while (total_n < buf_size) { // buf_size = 1024 always
+            n = read(fd_in, overflow_buf, buf_size-total_n);
+            if (n <= 0) {
+                break;
+            }
+            total_n = total_n + n;
+            for (i=0;i<n;i++) {
+                buf[total_n - n + i] = overflow_buf[i]; // always add to end
+            }
+        }
+        return total_n;
+    } else {
+        n = read(fd_in, buf, buf_size);
+        return n;
+    }
+}
+
+
+void write_to_pipe(int fd_in, int * pipefds) {
+    // Read off lines and write them in 1024 buffer to pipe.
+    int pipe_fd_write = pipefds[1];
+
+    char read_buf[1024]; // read from fd_in
+    char line_buf[1024]; // write to pipe
+    
+    //1. read in 1024 from pipe
+    //2. find first newline char, write line buf to pipe, clear line buf
+    // repeat 2 until no newlines left in read buf.
+    //3. copy leftovers of read buf into cleared line buf
+    //4. read in new read buf (step 1), and repeat.
+
+    int n;
+    int i;
+    while ((n = read(fd_in, read_buf, sizeof(read_buf))) > 0) {
+
+        for (i=0; i<n; i++) {
+
+            line_buf[strlen(line_buf)] = read_buf[i];
+
+            if (read_buf[i] == '\n') {
+                write(pipe_fd_write, line_buf, sizeof(line_buf));
+                memset(line_buf, '\0', 1024); // reset line buf - strlen = 0 again
+            }
+        }
+    }
+    if (strlen(line_buf) > 0) {
+        // TODO - only write newline if needed!
+        line_buf[strlen(line_buf)] = '\n'; // add newline
+        write(pipe_fd_write, line_buf, sizeof(line_buf));
+    }
+    close(pipe_fd_write);
+}
+
+void uniq_duplicate_mode(int * pipefds, int ignore, char * last_line) {
     // only print duplicates
+    int fd_in = pipefds[0];
     int infile_num_bytes;
     int dupe_found = FALSE;
-    while ((infile_num_bytes = read(fd_in, this_line, sizeof(this_line))) > 0) { 
-        // TODO - need to account for a line being longer than 512 bytes - readline() wrapper for read()
-
+    char this_line[1024];
+    while ((infile_num_bytes = read_line(fd_in, this_line, 1024)) > 0) { 
         // if we find a dupe, and its the first occurence, print it and set
         // the dupe flag. Otherwise, set the dupe flag to false.
         if (string_compare(last_line, this_line, ignore) && !dupe_found) {
@@ -66,11 +122,12 @@ void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
     }
 }
 
-void uniq_non_duplicate_mode(int fd_in, int ignore, int count, char * last_line) {
+void uniq_non_duplicate_mode(int * pipefds, int ignore, int count, char * last_line) {
+    int fd_in = pipefds[0];
     int dupe_count = 1;
     int infile_num_bytes;
-    while ((infile_num_bytes = read(fd_in, this_line, sizeof(this_line))) > 0) { 
-        // TODO - need to account for a line being longer than 512 bytes - readline() wrapper for read()
+    char this_line[1024];
+    while ((infile_num_bytes = read_line(fd_in, this_line, 1024)) > 0) { 
 
         if (!string_compare(last_line, this_line, ignore)) {
             // dupe not found
@@ -98,20 +155,47 @@ void uniq_non_duplicate_mode(int fd_in, int ignore, int count, char * last_line)
 
 void uniq(int fd_in, int count, int duplicate, int ignore) {
     // Proxy Method for choosing to run uniq in duplicate or non-duplicate mode.
-    int n;
-    if ((n = read(fd_in, last_line, sizeof(last_line)) <= 0)) {
-        printf(STD_OUT, "error - file empty");
+
+    int pipefds[2];
+    int return_status;
+    int pid;
+    char last_line[1024];
+    return_status = pipe(pipefds);
+    if (return_status == -1) {
+        printf(STD_OUT, "unable to create pipe!");
         exit();
     }
 
-    switch (duplicate) {
-        case 0 :
-            uniq_non_duplicate_mode(fd_in, ignore, count, last_line);
-            break;
-        case 1 :
-            uniq_duplicate_mode(fd_in, ignore, last_line);
+    pid = fork();
+
+    if (pid == 0) {
+        // child - aka consumer
+        close(pipefds[1]); // close child's write end
+        int n;
+        if ((n = read_line(pipefds[0], last_line, sizeof(last_line)) <= 0)) {
+            printf(STD_OUT, "error - file empty");
+            exit();
+        }
+        switch (duplicate) {
+            case 0 :
+                uniq_non_duplicate_mode(pipefds, ignore, count, last_line);
+                break;
+            case 1 :
+                uniq_duplicate_mode(pipefds, ignore, last_line);
+        }
+        close(pipefds[0]);
+        exit();
     }
-        
+    else {
+        // parent process - aka pipe writer (producer)
+        close(pipefds[0]); // close parent's read end
+        write_to_pipe(fd_in, pipefds);
+        int child_pid;
+        while((child_pid = wait()) > 0); // wait for child to finish...
+        exit();
+    }
+
+    return;
 }
 
 int main(int argc, char *argv[]) {
