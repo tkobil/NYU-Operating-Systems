@@ -13,28 +13,36 @@ void usage(int fd_out) {
     exit();
 }
 
-void to_upper(char *str, char *copy_str) {
-    int i;
-    for (i = 0; str[i]!='\0'; i++) {
-        if (str[i] >= 'a' && str[i] <= 'z') {
-            copy_str[i] = str[i] -32;
-        } else {
-            copy_str[i] = str[i];
-        }
-    }
-}
-
 int string_compare(char * str1, char * str2, int ignore_case) {
-    char str_1_cmp[strlen(str1)];
-    char str_2_cmp[strlen(str2)];
-    if (ignore_case) {
-        to_upper(str1, str_1_cmp);
-        to_upper(str2, str_2_cmp);
-    } else {
-        strcpy(str_1_cmp, str1);
-        strcpy(str_2_cmp, str2);
+    int len1 = strlen(str1);
+    int len2 = strlen(str2);
+    if (len1 != len2) {
+        return 0;
     }
-    return (strcmp(str_1_cmp, str_2_cmp) == 0);
+    int i;
+    char char1;
+    char char2;
+    for (i=0;i<len1;i++) {
+        if (ignore_case && str1[i] >= 'a' && str1[i] <= 'z') {
+            char1 = str1[i] - 32;
+        }
+        else {
+            char1 = str1[i];
+        }
+
+        if (ignore_case && str2[i] >= 'a' && str2[i] <= 'z') {
+            char2 = str2[i] - 32;
+        }
+        else {
+            char2 = str2[i];
+        }
+
+        if (char1 != char2) {
+            return 0;
+        }
+
+    }
+    return 1;
 }
 
 int read_line(int fd_in, char * buf, int buf_size) {
@@ -61,20 +69,12 @@ int read_line(int fd_in, char * buf, int buf_size) {
     }
 }
 
-
 void write_to_pipe(int fd_in, int * pipefds) {
     // Read off lines and write them in 1024 buffer to pipe.
     int pipe_fd_write = pipefds[1];
 
     char read_buf[1024]; // read from fd_in
     char line_buf[1024]; // write to pipe
-    
-    //1. read in 1024 from pipe
-    //2. find first newline char, write line buf to pipe, clear line buf
-    // repeat 2 until no newlines left in read buf.
-    //3. copy leftovers of read buf into cleared line buf
-    //4. read in new read buf (step 1), and repeat.
-
     int n;
     int i;
     while ((n = read(fd_in, read_buf, sizeof(read_buf))) > 0) {
@@ -136,6 +136,7 @@ void uniq_non_duplicate_mode(int * pipefds, int ignore, int count, char * last_l
             } else {
                 printf(STD_OUT, "%s", last_line);
             }
+
             strcpy(last_line, this_line);
             dupe_count = 1;
         } else {
