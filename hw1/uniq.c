@@ -30,6 +30,8 @@ int myreadline(int in_fd, char * one_bit, char * line){
     int position = 0;
     int endofLine = FALSE;
     int num_bytes;
+    // Have to clear the data in this line in order to avoid data leaks when loading the next one. 
+    memset(line,0,1024);
     // While the newline character has not yet been reached
     while (!endofLine) {
         // Read one byte from the file and store it in one_bit
@@ -86,6 +88,7 @@ void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
     int infile_num_bytes;
     int dupe_found = FALSE;
     while ((infile_num_bytes = myreadline(fd_in, one_bit, this_line)) > 0) { 
+        
         // if we find a dupe, and its the first occurence, print it and set
         // the dupe flag. Otherwise, set the dupe flag to false.
         if (string_compare(last_line, this_line, ignore) && !dupe_found) {
@@ -97,14 +100,6 @@ void uniq_duplicate_mode(int fd_in, int ignore, char * last_line) {
 
             dupe_found = FALSE;
         }
-        // Have to clear the data in this line in order to avoid data leaks when loading the next one. 
-        memset(this_line,0,1024);
-    }
-    // if dupe exists, just leave last_line as is
-    // and continue. Otherwise, print last line, 
-    // set last_line to this line, and continue.
-    if (!string_compare(last_line, this_line, ignore) && !dupe_found) {
-        printf(STD_OUT, "%s", last_line);
     }
 }
 
