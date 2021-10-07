@@ -149,7 +149,7 @@ void uniq_duplicate_mode(int * pipefds, int ignore, char * last_line) {
         if (string_compare(last_line, this_line, ignore) && !dupe_found) {
             printf(STD_OUT, "%s", last_line);
             dupe_found = TRUE;
-        } else {
+        } else if (!string_compare(last_line, this_line, ignore)) {
             strcpy(last_line, this_line);
             dupe_found = FALSE;
         }
