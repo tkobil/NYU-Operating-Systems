@@ -48,6 +48,7 @@ runcmd(struct cmd *cmd)
   struct execcmd *ecmd;
   struct pipecmd *pcmd;
   struct redircmd *rcmd;
+  char path[] = "/bin/";
 
   if(cmd == 0)
     exit(0);
@@ -63,7 +64,6 @@ runcmd(struct cmd *cmd)
       exit(0);
     
     // fprintf(stderr, "exec not implemented\n");
-    char path[] = "/bin/";
     strcat(path,ecmd->argv[0]);
     execv(path, ecmd->argv);
     break;
@@ -71,8 +71,8 @@ runcmd(struct cmd *cmd)
   case '>':
   case '<':
     rcmd = (struct redircmd*)cmd;
-    fprintf(stderr, "redir not implemented\n");
-    // Your code here ...
+    close(rcmd->fd);
+    int open_fd = open(rcmd->file, rcmd->mode);
     runcmd(rcmd->cmd);
     break;
 
