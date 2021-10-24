@@ -72,14 +72,41 @@ runcmd(struct cmd *cmd)
   case '<':
     rcmd = (struct redircmd*)cmd;
     close(rcmd->fd);
-    int open_fd = open(rcmd->file, rcmd->mode);
+    int open_fd = open(rcmd->file, rcmd->mode | O_CREAT, 777);
     runcmd(rcmd->cmd);
     break;
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
+    struct execcmd *right_ecmd;
+    struct execcmd *left_ecmd;
+    right_ecmd = (struct execcmd*)pcmd->right;
+    left_ecmd = (struct execcmd*)pcmd->left;
+    int p[2]; // pipe file descriptors p[0] = read end, p[1] = write end
+    pipe(p);
+    if (fork1() == 0) {
+        // child - left cmd - writes to pipe
+        close(1);
+        dup(p[1]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->left);
+    } else {
+        // parent - right cmd - takes left cmd as stdin from pipe
+        wait(NULL); // wait for child to finish. child should have written to pipe
+        printf("I am here!\n");
+        close(0);
+        dup(p[0]);
+        close(p[1]);
+        close(p[0]);
+        char buf[4];
+        runcmd(pcmd->right);
+    }
     fprintf(stderr, "pipe not implemented\n");
     // Your code here ...
+    // we have left cmd and right cmd (pipecmd->left, pipecmd->right)
+    // we need to open up a pipe so the left command rights as output to
+    // the input of the right command. we can consider a recursive runcmd call here...
     break;
   }    
   exit(0);
