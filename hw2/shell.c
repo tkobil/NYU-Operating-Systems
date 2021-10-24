@@ -48,7 +48,6 @@ runcmd(struct cmd *cmd)
   struct execcmd *ecmd;
   struct pipecmd *pcmd;
   struct redircmd *rcmd;
-  char path[] = "/bin/";
 
   if(cmd == 0)
     exit(0);
@@ -63,9 +62,7 @@ runcmd(struct cmd *cmd)
     if(ecmd->argv[0] == 0)
       exit(0);
     
-    // fprintf(stderr, "exec not implemented\n");
-    strcat(path,ecmd->argv[0]);
-    execv(path, ecmd->argv);
+    execvp(ecmd->argv[0], ecmd->argv);
     break;
 
   case '>':
@@ -92,21 +89,15 @@ runcmd(struct cmd *cmd)
         close(p[1]);
         runcmd(pcmd->left);
     } else {
-        // parent - right cmd - takes left cmd as stdin from pipe
-        wait(NULL); // wait for child to finish. child should have written to pipe
-        printf("I am here!\n");
+        // parent - right cmd - 
+        // takes left cmd as stdin from pipe
         close(0);
         dup(p[0]);
         close(p[1]);
         close(p[0]);
-        char buf[4];
         runcmd(pcmd->right);
+        wait(NULL);
     }
-    fprintf(stderr, "pipe not implemented\n");
-    // Your code here ...
-    // we have left cmd and right cmd (pipecmd->left, pipecmd->right)
-    // we need to open up a pipe so the left command rights as output to
-    // the input of the right command. we can consider a recursive runcmd call here...
     break;
   }    
   exit(0);
@@ -128,6 +119,7 @@ getcmd(char *buf, int nbuf)
 int
 main(void)
 {
+  setenv("PATH", "/bin:/usr/bin:/usr/local/bin", 1);
   static char buf[100];
   int fd, r;
 
