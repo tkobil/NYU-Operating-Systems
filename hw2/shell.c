@@ -57,22 +57,32 @@ runcmd(struct cmd *cmd)
     fprintf(stderr, "unknown runcmd\n");
     exit(-1);
 
+  // exec
   case ' ':
     ecmd = (struct execcmd*)cmd;
+    // If there are no arguments, exit. 
     if(ecmd->argv[0] == 0)
       exit(0);
-    
-    execvp(ecmd->argv[0], ecmd->argv);
+    // Execute the command using execvp
+    if (execvp(ecmd->argv[0], ecmd->argv) == -1)
+        // Print error if execvp returns error code of -1
+        fprintf(stderr, "unknown runcmd\n");
     break;
 
+  // redirection
   case '>':
   case '<':
     rcmd = (struct redircmd*)cmd;
+    // Close the file descriptor so that we use the next available fd
     close(rcmd->fd);
+    // Open the file with an optional create flag,
+    // and a mode of 777 so that the user (file owner) has read, write, and execute permission
     int open_fd = open(rcmd->file, rcmd->mode | O_CREAT, 777);
+    // Call runcmd again so that the next part of the command is run but now with the correct file descriptors open
     runcmd(rcmd->cmd);
     break;
 
+  //pipe
   case '|':
     pcmd = (struct pipecmd*)cmd;
     struct execcmd *right_ecmd;
