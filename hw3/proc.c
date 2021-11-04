@@ -11,6 +11,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  int num_tickets;
 } ptable;
 
 static struct proc *initproc;
@@ -210,6 +211,12 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
+
+  // lottery scheduling
+  // Reduce num of tickets, and set processes num tickets back to zero.
+  ptable.num_tickets -= p->tickets;
+  p->tickets = 0;
+  
   sched();
   panic("zombie exit");
 }
