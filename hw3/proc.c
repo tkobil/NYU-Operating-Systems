@@ -8,6 +8,8 @@
 #include "spinlock.h"
 #include "rand.h"
 
+#define MAGIC_TICKET_NUM 20 // Num Tickets to initialize a proc with for lottery scheduling
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -51,6 +53,13 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->tickets = MAGIC_TICKET_NUM;
+  if (ptable.num_tickets) {
+      ptable.num_tickets += MAGIC_TICKET_NUM;
+  }
+  else {
+      ptable.num_tickets = MAGIC_TICKET_NUM;
+  }
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -264,6 +273,7 @@ wait(void)
   }
 }
 
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -287,9 +297,20 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+    int winner = random_at_most(ptable.num_tickets);
+    int counter = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+       counter += p->tickets;
+       if (counter < winner) {
+           continue;
+       }
+       //else... we have a winner!
+       // check if its runnable!
+
       if(p->state != RUNNABLE)
         continue;
+    
+    //   printf(0, "scheduling pid %d!", p->pid);
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -478,4 +499,14 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int settickets(int new_tix) {
+  acquire(&ptable.lock);
+  ptable.num_tickets -= proc->tickets;
+  ptable.num_tickets += new_tix;
+  int num_tx = ptable.num_tickets;
+  release(&ptable.lock);
+  proc->tickets = new_tix;
+  return num_tx;
 }

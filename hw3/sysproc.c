@@ -105,7 +105,8 @@ sys_settickets(void) {
    // Question - how are we able to access proc without passing
    // in a reference to proc...
    int tix;
-   if(argint(0, &tix) < 1)
-    return -1;
-  return proc->pid;
+   if(argint(0, &tix) < 0) {
+       return -1;
+   }
+   return settickets(tix);
 }
