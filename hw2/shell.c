@@ -62,24 +62,42 @@ runcmd(struct cmd *cmd)
     if(ecmd->argv[0] == 0)
       exit(0);
     
-    // fprintf(stderr, "exec not implemented\n");
-    char path[] = "/bin/";
-    strcat(path,ecmd->argv[0]);
-    execv(path, ecmd->argv);
+    execvp(ecmd->argv[0], ecmd->argv);
     break;
 
   case '>':
   case '<':
     rcmd = (struct redircmd*)cmd;
-    fprintf(stderr, "redir not implemented\n");
-    // Your code here ...
+    close(rcmd->fd);
+    int open_fd = open(rcmd->file, rcmd->mode | O_CREAT, 777);
     runcmd(rcmd->cmd);
     break;
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    fprintf(stderr, "pipe not implemented\n");
-    // Your code here ...
+    struct execcmd *right_ecmd;
+    struct execcmd *left_ecmd;
+    right_ecmd = (struct execcmd*)pcmd->right;
+    left_ecmd = (struct execcmd*)pcmd->left;
+    int p[2]; // pipe file descriptors p[0] = read end, p[1] = write end
+    pipe(p);
+    if (fork1() == 0) {
+        // child - left cmd - writes to pipe
+        close(1);
+        dup(p[1]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->left);
+    } else {
+        // parent - right cmd - 
+        // takes left cmd as stdin from pipe
+        close(0);
+        dup(p[0]);
+        close(p[1]);
+        close(p[0]);
+        runcmd(pcmd->right);
+        wait(NULL);
+    }
     break;
   }    
   exit(0);
@@ -101,6 +119,7 @@ getcmd(char *buf, int nbuf)
 int
 main(void)
 {
+  setenv("PATH", "/bin:/usr/bin:/usr/local/bin", 1);
   static char buf[100];
   int fd, r;
 
