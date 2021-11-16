@@ -101,12 +101,12 @@ sys_gettime(void) {
 
 int
 sys_settickets(void) {
-   // TODO - implement set tickets on proc id!
-   // Question - how are we able to access proc without passing
-   // in a reference to proc...
+   // set tickets on proc id!
    int tix;
    if(argint(0, &tix) < 0) {
        return -1;
    }
-   return settickets(tix);
+
+    proc->tickets = tix;
+    return proc->tickets;
 }
