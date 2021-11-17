@@ -13,7 +13,6 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
-  int num_tickets;
 } ptable;
 
 static struct proc *initproc;
@@ -53,13 +52,10 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+
+  // LotteryScheduling
   p->tickets = MAGIC_TICKET_NUM;
-  if (ptable.num_tickets) {
-      ptable.num_tickets += MAGIC_TICKET_NUM;
-  }
-  else {
-      ptable.num_tickets = MAGIC_TICKET_NUM;
-  }
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -206,6 +202,7 @@ exit(void)
 
   acquire(&ptable.lock);
 
+
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
@@ -220,11 +217,6 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
-
-  // lottery scheduling
-  // Reduce num of tickets, and set processes num tickets back to zero.
-  ptable.num_tickets -= p->tickets;
-  p->tickets = 0;
   
   sched();
   panic("zombie exit");
@@ -295,22 +287,29 @@ scheduler(void)
     if (!foundproc) hlt();
     foundproc = 0;
 
-    // Loop over process table looking for process to run.
+
     acquire(&ptable.lock);
-    int winner = random_at_most(ptable.num_tickets);
-    int counter = 0;
+    int num_tickets = 0;
+
+    // Lottery Scheduling: Loop over process table summing runnable proc num tix
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if (p->state == RUNNABLE) {
+            num_tickets += p->tickets;
+        }
+    }
+    int winner = (int)random_at_most((long)num_tickets);
+    int counter = 0;
+    // Loop over process table looking for process to run.
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+
+      if(p->state != RUNNABLE)
+        continue;
+
        counter += p->tickets;
        if (counter < winner) {
            continue;
        }
-       //else... we have a winner!
-       // check if its runnable!
-
-      if(p->state != RUNNABLE)
-        continue;
     
-    //   printf(0, "scheduling pid %d!", p->pid);
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -325,6 +324,9 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       proc = 0;
+
+      // IMPORTANT - Break out of loop so we don't just schedule next proc!
+      break;
     }
     release(&ptable.lock);
 
@@ -499,14 +501,4 @@ procdump(void)
     }
     cprintf("\n");
   }
-}
-
-int settickets(int new_tix) {
-  acquire(&ptable.lock);
-  ptable.num_tickets -= proc->tickets;
-  ptable.num_tickets += new_tix;
-  int num_tx = ptable.num_tickets;
-  release(&ptable.lock);
-  proc->tickets = new_tix;
-  return num_tx;
 }
