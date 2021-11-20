@@ -34,51 +34,57 @@ void disk_read(char *filename, int block_size, int block_count, int num_threads)
     int fd = open(filename, O_RDONLY);
 
     unsigned int *buffers[num_threads];
-    
-    // We want each thread to handle a portion of a buffer
-    if (num_threads > block_size) {
-        printf("Error, more threads than block size!");
-    }
-
-    int size_per_thread = block_size / num_threads;
-    pthread_t threads[num_threads];
-
-    // Create threads
-    for (int i=0; i < num_threads; i++) {
-        int size = size_per_thread;
-
-        if (i == num_threads - 1) {
-            size += block_size % num_threads;
-        }
-
-        // Initialize thread args
-        thread_arg *arg;
-        unsigned int buf[size];
-        arg->fd = fd;
-        arg->size = size;
-        arg->buf = buf;
-
-        pthread_create(&threads[i], NULL, safe_read, (void *)arg);
-
-    }
-
-    // Join threads
-    for (int i=0; i < num_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-
     unsigned int xor;
-    for (int i=0; i < num_threads; i++) {
-        if (i==0) {
-            xor = xorbuf(buffers[i], size_per_thread);
-        } else if (i == num_threads - 1) {
-            xor ^= xorbuf(buffers[i], num_threads + (block_size % num_threads));
-        }
-        else {
-            xor ^= xorbuf(buffers[i], size_per_thread);
-        }
-    }
 
+    for (int i=0; i< block_count; i++) {
+
+    
+        // We want each thread to handle a portion of a buffer
+        if (num_threads > block_size) {
+            printf("Error, more threads than block size!");
+        }
+
+        int size_per_thread = block_size / num_threads;
+        pthread_t threads[num_threads];
+
+        // Create threads
+        for (int i=0; i < num_threads; i++) {
+            int size = size_per_thread;
+
+            if (i == num_threads - 1) {
+                size += block_size % num_threads;
+            }
+
+            // Initialize thread args
+            thread_arg *arg;
+            unsigned int buf[size];
+            arg->fd = fd;
+            arg->size = size;
+            arg->buf = buf;
+
+            pthread_create(&threads[i], NULL, safe_read, (void *)arg);
+
+        }
+
+        // Join threads
+        for (int i=0; i < num_threads; i++) {
+            pthread_join(threads[i], NULL);
+        }
+
+        for (int i=0; i < num_threads; i++) {
+            if (xor==0) { // TODO - does this accurately check if uninitialized?
+                xor = xorbuf(buffers[i], size_per_thread);
+            } else if (i == num_threads - 1) {
+                xor ^= xorbuf(buffers[i], num_threads + (block_size % num_threads));
+            }
+            else {
+                xor ^= xorbuf(buffers[i], size_per_thread);
+            }
+        }
+        // reset buffer
+        memset(buffers, 0, sizeof(unsigned int)*num_threads);
+
+    }
     printf("%08x\n", xor);
 }
 
