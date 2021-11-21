@@ -4,6 +4,30 @@
 #include <pthread.h>
 #include <assert.h>
 #include <sys/time.h>
+/*
+Notes on timing differences between using mutexes and using a
+spinlock:
+
+To examine any differences in timing, we ran each program 6 times for a number
+of different thread counts (1, 5, 8, and 12). We found that there is a much greater 
+degree of variability in the time it takes for the spinlock program to run, as 
+opposed to the mutex program (which is very consistent). Overall, the 
+average time of the spinlock program was much higher than the mutex program. 
+We did not expect this, because we assumed that for quick operations like the ones we are
+perfomring, the overhead associated with the sytem calls for locking/unlocking 
+the mutex would be greater than just spinning. However, we theorize that the greater variablility 
+and higher average time is due to the fact that when a thread is spinning, it is not 
+put to sleep like when using a mutex. This means that the thread can be preempted due to 
+hitting it's quanta, and this can happen after a lock has been acquired. This would lead 
+to increased wait times for other threads that are waiting for that lock, because the thread was
+put to sleep before it could release the lock. This should not happen in the mutex method,
+because when a thread wakes up to get a mutex, it will either acquire it, perform the needed actions, 
+and release it right away, or it will go back to sleep if it cannot aquire it. Going to sleep 
+will free up the CPU for other threads to use, which will also help to improve overall
+performance. 
+
+*/
+
 
 #define NUM_BUCKETS 5     // Buckets in hash table
 #define NUM_KEYS 100000   // Number of keys inserted per thread
