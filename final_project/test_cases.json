@@ -1,0 +1,310 @@
+[
+    {
+        "size": 100000,
+        "name": "one_hundred_k_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000,
+        "name": "one_mil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000,
+        "name": "ten_mil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000000,
+        "name": "one_hundred_mil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000000,
+        "name": "one_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 15000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 20000000000,
+        "name": "twenty_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 30000000000,
+        "name": "thirty_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 40000000000,
+        "name": "fourty_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 50000000000,
+        "name": "fifty_bil_input.txt",
+        "block_size": 512,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000,
+        "name": "one_hundred_k_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000,
+        "name": "one_mil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000,
+        "name": "ten_mil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000000,
+        "name": "one_hundred_mil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000000,
+        "name": "one_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 15000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 20000000000,
+        "name": "twenty_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 30000000000,
+        "name": "thirty_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 40000000000,
+        "name": "fourty_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 50000000000,
+        "name": "fifty_bil_input.txt",
+        "block_size": 1024,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000,
+        "name": "one_hundred_k_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000,
+        "name": "one_mil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000,
+        "name": "ten_mil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000000,
+        "name": "one_hundred_mil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000000,
+        "name": "one_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 15000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 20000000000,
+        "name": "twenty_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 30000000000,
+        "name": "thirty_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 40000000000,
+        "name": "fourty_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 50000000000,
+        "name": "fifty_bil_input.txt",
+        "block_size": 256,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000,
+        "name": "one_hundred_k_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000,
+        "name": "one_mil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000,
+        "name": "ten_mil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 100000000,
+        "name": "one_hundred_mil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 1000000000,
+        "name": "one_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 10000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 15000000000,
+        "name": "ten_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 20000000000,
+        "name": "twenty_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 30000000000,
+        "name": "thirty_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 40000000000,
+        "name": "fourty_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    },
+    {
+        "size": 50000000000,
+        "name": "fifty_bil_input.txt",
+        "block_size": 2048,
+        "block_count": 1,
+        "mode": "r"
+    }
+]
