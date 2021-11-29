@@ -31,7 +31,6 @@ unsigned int xorbuf(unsigned int *buffer, int size) {
 void thread_read(thread_arg *arg) {
     int r = read(arg->fd, arg->buf, arg->block_size);
     arg->status = r;
-    pthread_exit(NULL);
 }
 
 void disk_read(char *filename, int block_size, int num_threads) {

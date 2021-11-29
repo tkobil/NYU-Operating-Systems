@@ -8,18 +8,18 @@ def create_file_size(size, name):
     # Need to write in chunks for very large numbers!
     write_block_default_size = 100000
     num_writes = int(size/write_block_default_size)
-    os.system(f"./part_one {name} -w {write_block_default_size} {num_writes}")
+    os.system(f"./part_4 {name} -w {write_block_default_size} {num_writes}")
 
 def time_run(name, block_size, block_count, mode):
     t1 = time.time()
-    resp = os.system(f"./part_one {name} -{mode} {block_size} {block_count}")
+    resp = os.system(f"./part_4 {name} -{mode} {block_size} {block_count}")
     t2 = time.time()
     print(t2-t1)
     return t2-t1
 
 
 def main():
-    test_cases = "test_cases_part_four.json"
+    test_cases = "test_cases_lseek.json"
     with open(test_cases, 'r') as test_cases:
         runs = json.loads(test_cases.read())
 
@@ -38,7 +38,7 @@ def main():
 
     df = pandas.DataFrame(runs)
     print(df)
-    df.to_csv('part_four_analysis.csv')
+    df.to_csv('part_four_lseek_analysis.csv')
 
 if __name__ == "__main__":
     main()
