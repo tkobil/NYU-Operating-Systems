@@ -84,11 +84,6 @@ void disk_read(char *filename, int block_size, int num_threads) {
 
     for (i=0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
-        printf("thread %d\n", i);
-        for (int z=0; z < sizeof(thread_args[i].buf); z++) {
-            printf("%d\n", thread_args[i].buf[z]);
-        }
-        // printf("%d\n", thread_args[i]->buf);
         xor ^= thread_args[i].xor;
     }
 
