@@ -8,13 +8,14 @@ void usage() {
     printf("usage: ./part_one <filename> [-r|-w] <block_size> <block_count>");
 }
 
-void disk_read(char *filename, int block_size) {
+void disk_read(char *filename, int block_size, int block_count) {
     int fd = open(filename, O_RDONLY);
     char buf[block_size];
     int r;
-    while ((r=read(fd, buf, block_size)) > 0) {
-        // printf("%s", buf);
-        continue;
+    int sum = 0;
+    while (sum < block_count*block_size) {
+        lseek(fd, block_size, SEEK_CUR);
+        sum += block_size;
     }
 }
 
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]) {
     block_count = atoi(argv[4]);
 
     if (mode == 'r') {
-        disk_read(filename, block_size);
+        disk_read(filename, block_size, block_count);
     }
     else if (mode == 'w') {
         disk_write(filename, block_size, block_count);  

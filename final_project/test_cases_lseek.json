@@ -1,0 +1,37 @@
+[
+    {
+        "size": 100000,
+        "name": "one_hundred_k_input.txt",
+        "block_size": 1,
+        "block_count": 100000,
+        "mode": "r"
+    },
+    {
+        "size": 1000000,
+        "name": "one_mil_input.txt",
+        "block_size": 1,
+        "block_count": 1000000,
+        "mode": "r"
+    },
+    {
+        "size": 10000000,
+        "name": "ten_mil_input.txt",
+        "block_size": 1,
+        "block_count": 10000000,
+        "mode": "r"
+    },
+    {
+        "size": 100000000,
+        "name": "one_hundred_mil_input.txt",
+        "block_size": 1,
+        "block_count": 100000000,
+        "mode": "r"
+    },
+    {
+        "size": 1000000000,
+        "name": "one_bil_input.txt",
+        "block_size": 1,
+        "block_count": 1000000000,
+        "mode": "r"
+    }
+]
