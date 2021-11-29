@@ -18,13 +18,15 @@ unsigned int xorbuf(unsigned int *buffer, int size) {
 int main(int argc, char *argv[]) {
     
     char *filename = argv[1];
-    unsigned int buf[512];
+    unsigned int buf[128];
     int i;
-    unsigned int xor;
+    int size;
+    unsigned int xor = 0;
+    unsigned int answ;
     int fd = open(filename, O_RDONLY);
-    while ((i = read(fd, buf, 512)) > 0) {
-        // printf("%d\n", i);
-        xor ^= xorbuf(buf, i);
+    while ((i = read(fd, buf, 128 * sizeof(unsigned int))) > 0) {
+        size = i/sizeof(unsigned int);
+        xor ^= xorbuf(buf, size);
     }
     printf("%08x\n", xor);
     close(fd);
