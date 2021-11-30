@@ -34,15 +34,15 @@ void *thread_read(void *arg) {
     thread_arg *t_arg = (thread_arg *)arg;
     int r;
     int size;
-    int offset = t_arg->thread_num * t_arg->block_size;
+    unsigned long offset = t_arg->thread_num * t_arg->block_size;
     int count = 0;
     while ((r = pread(t_arg->fd, t_arg->buf, t_arg->block_size, offset)) > 0) {
         size = r/sizeof(unsigned int);
         t_arg->xor ^= xorbuf(t_arg->buf, size);
         count++;
-        offset = ((t_arg->num_threads * count) + t_arg->thread_num) * t_arg->block_size;
+        offset = (((unsigned long)t_arg->num_threads * count) + t_arg->thread_num) * (unsigned long)t_arg->block_size;
     }
-    // int r = read(t_arg->fd, t_arg->buf, t_arg->block_size);
+    
     t_arg->finished = TRUE;
     pthread_exit(NULL);
 }
