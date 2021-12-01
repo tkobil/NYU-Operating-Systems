@@ -13,7 +13,6 @@ typedef struct {
     int block_size;
     unsigned int *buf;
     unsigned int xor;
-    int finished;
     int thread_num;
     int num_threads;
 } thread_arg;
@@ -43,7 +42,6 @@ void *thread_read(void *arg) {
         offset = (((unsigned long)t_arg->num_threads * count) + t_arg->thread_num) * (unsigned long)t_arg->block_size;
     }
     
-    t_arg->finished = TRUE;
     pthread_exit(NULL);
 }
 
@@ -63,23 +61,11 @@ void disk_read(char *filename, int block_size, int num_threads) {
         arg.num_threads = num_threads;
         arg.buf = (unsigned int *)malloc(buf_size * sizeof(unsigned int));
         arg.xor = 0;
-        arg.finished = FALSE;
         thread_args[i] = arg;
     }
 
     for (i=0; i < num_threads; i++) {
         pthread_create(&threads[i], NULL, thread_read, (void *)(&thread_args[i]));
-    }
-
-    // Wait till at least one thread finishes. As soon as it does,
-    // we know file has been read...
-    int loop_break = FALSE;
-    while(!loop_break) {
-        for (i=0; i < num_threads; i++) {
-            if (thread_args[i].finished) {
-                loop_break = TRUE;
-            }
-        }
     }
 
     for (i=0; i < num_threads; i++) {
