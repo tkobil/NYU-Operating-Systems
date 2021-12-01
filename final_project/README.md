@@ -19,7 +19,7 @@ Run the binaries using the below commands:
 
 
 ## Read Mode
-When in Read mode, block_count does not matter. We will simply reach with a given block_size until the file has been completely read
+When in Read mode, block_count does not matter. We will simply read with a given block_size until the file has been completely read
 
 ## Write Mode
 Write mode is not multithreaded. No matter how many threads you pass in for num_threads, we will perform the write single-threaded. We will write pre-defined repeated characters to a file of size block_size * block_count
