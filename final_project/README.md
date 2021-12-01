@@ -1,7 +1,7 @@
 # CS-GY 6233 Final Project
 
 ## Introduction
-This directory consists of the C code to read and write to disk with various parameters (thread count, block size, block count, read/write flag, file name). In additional, there are several python scripts used to measure the performance of the C programs. These python scripts rely on test cases define in .json files.
+This directory consists of the C code to read and write to disk with various parameters (thread count, block size, block count, read/write flag, file name). In addition, there are several python scripts used to measure the performance of the C programs. These python scripts rely on test cases defined in .json files.
 
 ## Compiling
 To compile, simply run:
@@ -19,10 +19,10 @@ Run the binaries using the below commands:
 
 
 ## Read Mode
-When in Read mode, block_count does not matter. We will simply read with a given block_size until the file has been completely read
+When in Read mode, block_count does not matter. We will simply read with a given block_size until the file has been completely read.
 
 ## Write Mode
-Write mode is not multithreaded. No matter how many threads you pass in for num_threads, we will perform the write single-threaded. We will write pre-defined repeated characters to a file of size block_size * block_count
+Write mode is not multithreaded. No matter how many threads you pass in for num_threads, we will perform the write single-threaded. We will write pre-defined repeated characters to a file of size block_size * block_count.
 
 ## Performance Analysis/Testing
 To analyze performance, we used two python scripts.
@@ -77,3 +77,6 @@ The python script is hard-coded to look for certain json files, and hardcoded to
         df.to_csv('part_six_analysis.csv')
 
 Feel free to change the names of the json file and output file if you so choose. You can implement your own test cases this way. The test cases we used throughout our performance analysis are included in this repo.
+
+## Additonal Notes
+The final report for this project, which detaisl all of the results and methods used, can be found in OS_Final_Project_Report.pdf . Any miscellaneous files that are present in the repo that aren't explicityly mentioned in this README, are outlined in the report. Some of these include extra credit experiments, which require additional setup, also outlined in the report. 
