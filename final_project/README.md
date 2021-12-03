@@ -3,23 +3,43 @@
 ## Introduction
 This directory consists of the C code to read and write to disk with various parameters (thread count, block size, block count, read/write flag, file name). In addition, there are several python scripts used to measure the performance of the C programs. These python scripts rely on test cases defined in .json files.
 
+## Description of all code files
+run.c - This is the file asked for in Q1. Note, it will read an entire file in readmode, and ignore the block_count parameter. 
+run_blocksize.c - This version of the file allows for reading in a specific block_count (rather than the entire file), and will output the xor of all 4-byte integers in the file. 
+run_multithreaded.c - This version of the file includes an additional parameter to set the number of threads to use when reading, and will output the xor of all 4 byte integers in the file. It will read the entire file, and ignore block_count.
+part_4_lseek_run.c - This file was used for part 4 to test the effect of system calls, by using lseek rather than read. 
+fast.c - This is the file for running our best chosen parameters. 
+
+benchmark_extra_cred.cpp - This is a modified version of run.c that is used for the extra credit examinining Google Benchmark. See report for instructions.
+
+find_file_size.py - This is an automated script used for Parts 1-5 of the project. It imports a json file which is hard coded in order to run a set of predetermined tests. The name of the binary file being used was hardcoded and changed when needed as well. 
+find_file_size_dd.py - This file was used for the edtra credit assigmnet to generate performance data of the linux dd program. 
+find_file_size_read_write_time.py - This file was used for the edtra credit assigmnet to compare our solution in part 1 to that of the linux dd program. 
+measure_raw_performance.py - This file was used in part 6 to evaluate the effects of multithreading. 
+
 ## Compiling
 To compile, simply run:
 
     ./build.sh
 
-This will create binaries called run and part_one. part_one can be used to measure Disk IO without multiple threads, and run can be used with threads as a parameter, and will output the xor of all 4-byte integers in the file.
+This will create binaries listed below, which correspond to the files listed in the previous section. 
+
+    run
+    run_multithreaded
+    run_blocksize
+    fast
 
 ## Running
 Run the binaries using the below commands:
 
-    ./part_one <filename> [-r|-w] <block_size> <block_count>
-
-    ./run <filename> [-r|-w] <block_size> <block_count> <num_threads>
-
+    ./run <filename> [-r|-w] <block_size> <block_count>
+    ./run_multithreaded <filename> [-r|-w] <block_size> <block_count> <num_threads>
+    Note: Block size does not matter in read mode in the two commands above, because they will automatically read the entire file.
+    ./run_blocksize <filename> [-r|-w] <block_size> <block_count> <num_threads>
+    ./fast <filename>
 
 ## Read Mode
-When in Read mode, block_count does not matter. We will simply read with a given block_size until the file has been completely read.
+During analysis, we used in read mode, block_count does not matter. We will simply read with a given block_size until the file has been completely read.
 
 ## Write Mode
 Write mode is not multithreaded. No matter how many threads you pass in for num_threads, we will perform the write single-threaded. We will write pre-defined repeated characters to a file of size block_size * block_count.
