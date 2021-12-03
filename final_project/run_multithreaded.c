@@ -73,7 +73,7 @@ void disk_read(char *filename, int block_size, int num_threads) {
         xor ^= thread_args[i].xor;
     }
 
-    printf("xor: %08x\n", xor);
+    // printf("xor: %08x\n", xor);
 }
 
 void disk_write(char *filename, int block_size, int block_count){
