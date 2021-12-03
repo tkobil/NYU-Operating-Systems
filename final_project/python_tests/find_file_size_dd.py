@@ -8,7 +8,7 @@ def create_file_size(size, name):
     # Need to write in chunks for very large numbers!
     write_block_default_size = 100000
     num_writes = int(size/write_block_default_size)
-    os.system(f"./part_one {name} -w {write_block_default_size} {num_writes}")
+    os.system(f"./run {name} -w {write_block_default_size} {num_writes}")
 
 def time_run(name, block_size, size, mode):
     block_count = int(size/block_size)
