@@ -8,11 +8,11 @@ def create_file_size(size, name):
     # Need to write in chunks for very large numbers!
     write_block_default_size = 100000
     num_writes = int(size/write_block_default_size)
-    os.system(f'./run {name} -w {write_block_default_size} {num_writes} 1')
+    os.system(f'./run_multithreaded {name} -w {write_block_default_size} {num_writes} 1')
 
 def time_run(name, block_size, block_count, mode, num_threads):
     t1 = time.time()
-    resp = os.system(f"./run {name} -{mode} {block_size} {block_count} {num_threads}")
+    resp = os.system(f"./run_multithreaded {name} -{mode} {block_size} {block_count} {num_threads}")
     t2 = time.time()
     print(t2-t1)
     return t2-t1

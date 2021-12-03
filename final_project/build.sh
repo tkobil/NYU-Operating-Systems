@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-gcc -pthread run.c -o run 
-gcc part_one_run.c -o part_one
-gcc run_final.c -o run_final
+gcc -pthread run_multithreaded.c -o run_multithreaded 
+gcc run.c -o run
+gcc run_blocksize.c -o run_blocksize
 gcc fast.c -o fast
